@@ -1,0 +1,38 @@
+# Ship to TestFlight and build the Android .apk in the same run.
+#
+# Before you use this:
+#   1. Change the bundle id to one registered to your Apple team
+#      (in Xcode: Runner target > Signing & Capabilities).
+#   2. Fill in ios/ExportOptions.plist: your team id, bundle id, profile name.
+#   3. Add three secrets on your MacBuildCloud dashboard, with these names:
+#        APPLE_DIST_CERT    your Apple Distribution certificate, as a .p12
+#        APPSTORE_PROFILE   the App Store provisioning profile for the bundle id
+#        ASC_KEY            an App Store Connect API key (.p8), App Manager role
+# Then copy this file over .macbuildcloud.yml and push.
+# Walkthrough: https://macbuildcloud.com/docs/signing/
+
+signing:
+  certificate: APPLE_DIST_CERT
+  profile: APPSTORE_PROFILE
+
+secrets:
+  - ASC_KEY
+
+script:
+  - flutter pub get
+  - flutter test
+  - flutter build apk --release --build-number=$MBC_BUILD_NUMBER
+  # Archive without signing, then sign while exporting. Your certificate is
+  # used only in the export step, and Xcode never touches your Apple account.
+  - flutter build ipa --release --no-codesign --build-number=$MBC_BUILD_NUMBER
+  - xcodebuild -exportArchive \
+      -archivePath build/ios/archive/Runner.xcarchive \
+      -exportOptionsPlist ios/ExportOptions.plist \
+      -exportPath build/ipa
+  - xcrun altool --upload-app -t ios \
+      -f "$(ls build/ipa/*.ipa | head -1)" \
+      --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+
+artifacts:
+  - build/app/outputs/flutter-apk/app-release.apk
+  - build/ipa/*.ipa

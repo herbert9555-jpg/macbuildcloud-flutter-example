@@ -1,0 +1,17 @@
+# Build configuration for MacBuildCloud.
+# Every section is explained at https://macbuildcloud.com/docs/build-config/
+#
+# This builds an Android .apk and an unsigned iOS app in one run, on one Mac.
+# No certificates needed. To ship to TestFlight instead, see
+# ci/testflight.macbuildcloud.yml and the README.
+
+script:
+  - flutter --version
+  - flutter pub get
+  - flutter test
+  - flutter build apk --release --build-number=$MBC_BUILD_NUMBER
+  - flutter build ios --release --no-codesign --build-number=$MBC_BUILD_NUMBER
+
+artifacts:
+  - build/app/outputs/flutter-apk/app-release.apk
+  - build/ios/iphoneos/Runner.app
