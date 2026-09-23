@@ -13,7 +13,9 @@ real Mac, gives you an Android `.apk` and an iOS app.
    tier from being farmed for crypto-mining.
 3. **Connect your copy.** On **Repositories**, choose **Install the GitHub app**
    (or **Choose repositories** if you have installed it before) and pick the
-   repository you just made. We ask for read access to code, never write.
+      repository you just made. We ask for read-only access to your code, plus
+   permission to post build statuses (Checks) back to GitHub — we can never
+   modify your code.
 4. **Press Build.** A fresh Mac is ready in about 20 seconds and you can watch
    the log live.
 
